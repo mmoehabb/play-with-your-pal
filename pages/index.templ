@@ -1,0 +1,37 @@
+package pages
+
+import "goweb/ui/layouts"
+
+var headHandle = templ.NewOnceHandle()
+
+templ Index() {
+  <html theme="light">
+    @headHandle.Once() {
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+      <title>GoWeb Template</title>
+      <meta name="description" content="A template for developing web apps with golang.">
+      <meta name="keywords" content="go, web, templ, htmx, tailwind, fiber">
+      <meta name="author" content="M. E. Abdelsalam">
+
+      <link href="public/globals.css" rel="stylesheet" />
+      <script src="public/tailwind.js"></script>
+      <script src="public/util.js"></script>
+      <script src="https://unpkg.com/htmx.org@2.0.2"></script>
+    }
+    <body class="flex flex-col bg-background color-text min-h-screen h-auto overflow-auto">
+      
+      @layouts.Header()
+
+      <main class="relative flex-1 flex flex-wrap justify-center items-center p-8 lg:px-24 bg-background color-text">
+        <button onclick="host()">Host</button>
+        <iframe name="iframe_a" width="600" height="480"></iframe>
+        <a href="https://www.google.com" target="iframe_a">play</a>
+      </main>
+      
+      @layouts.Footer()
+
+    </body>
+  </html>
+}
