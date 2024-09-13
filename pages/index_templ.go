@@ -64,7 +64,7 @@ func Index() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main class=\"relative flex-1 flex flex-wrap justify-center items-center p-8 lg:px-24 bg-background color-text\"><button onclick=\"host()\">Host</button> <iframe name=\"iframe_a\" width=\"600\" height=\"480\"></iframe> <a href=\"https://www.google.com\" target=\"iframe_a\">play</a></main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main class=\"relative flex-1 flex flex-wrap justify-center items-center p-8 lg:px-24 bg-background color-text\"><form hx-post=\"/join\" hx-swap=\"outerHTML\"><input name=\"password\" type=\"password\" required> <button type=\"submit\">Join</button></form></main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

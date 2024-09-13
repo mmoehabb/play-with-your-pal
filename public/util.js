@@ -4,32 +4,17 @@ function switchMode() {
   html.setAttribute("theme", theme !== "dark" ? "dark" : "light")
 }
 
-let session_id = null
 let conn = null
+let password = ""
 
-function host() {
+function join() {
   if (window["WebSocket"]) {
-      conn = new WebSocket("ws://" + document.location.host + "/ws/host");
+      conn = new WebSocket("ws://" + document.location.host + "/ws/join/" + password);
       conn.onclose = function (evt) {
           console.log("session closed.")
       };
       conn.onmessage = function (evt) {
           console.log("ws message: ", evt.data)
-          session_id = JSON.parse(evt.data)['session_id']
-      };
-  } else {
-      console.log("Your browser does not support WebSockets.")
-  }
-}
-
-function join(id) {
-  if (window["WebSocket"]) {
-      conn = new WebSocket("ws://" + document.location.host + "/ws/join/" + id);
-      conn.onclose = function (evt) {
-          console.log("join session closed.")
-      };
-      conn.onmessage = function (evt) {
-          console.log("join ws message: ", evt.data)
       };
   } else {
       console.log("Your browser does not support WebSockets.")
@@ -40,3 +25,7 @@ window.onkeydown = (e) => {
   if (!conn) return;
   conn.send(e.key);
 }
+
+window.addEventListener("load", (event) => {
+  document.querySelector("input").onchange = (e) => password = e.target.value
+});

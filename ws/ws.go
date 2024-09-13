@@ -2,20 +2,21 @@ package ws
 
 import (
 	"log"
-	"math/rand"
-
 	"github.com/gofiber/contrib/websocket"
 )
 
-type Session struct{
-  host *websocket.Conn
-  guest *websocket.Conn
+var connections []*websocket.Conn
+var conn_password = ""
+
+func GetPassword() string {
+  return conn_password
 }
-type SessionId int32
 
-var sessions = make(map[SessionId]*Session)
+func SetPassword(password string) {
+  conn_password = password
+}
 
-func HandleConn(id SessionId, c *websocket.Conn) error {
+func HandleConn(c *websocket.Conn) error {
   msgType, msg, err := c.ReadMessage()
   if err != nil {
     return err
@@ -28,37 +29,10 @@ func HandleConn(id SessionId, c *websocket.Conn) error {
   return nil
 }
 
-func CreateSession(c *websocket.Conn) SessionId {
-  id := SessionId(rand.Intn(9999))
-  for sessions[id] != nil {
-    id = SessionId(rand.Intn(9999))
-  }
-  sessions[id] = &Session{
-    host: c,
-  }
-  c.SetCloseHandler(func(code int, text string) error {
-    CloseSession(id)
-    return nil
-  })
-  return id
-}
-
-func JoinSession(c *websocket.Conn, id SessionId) bool {
-  if sessions[id] == nil || sessions[id].guest != nil {
+func AddGuest(c *websocket.Conn, password string) bool {
+  if password != conn_password {
     return false
   }
-  sessions[id].guest = c
+  connections = append(connections, c)
   return true
-}
-
-func KickGuest(id SessionId) {
-  sessions[id].guest.Close()
-}
-
-func CloseSession(id SessionId) {
-  sessions[id].host.Close()
-  if sessions[id].guest != nil {
-    sessions[id].guest.Close()
-  }
-  delete(sessions, id)
 }

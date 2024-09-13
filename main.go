@@ -2,15 +2,22 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 
-	"goweb/handlers/session"
+	"goweb/handlers"
 	"goweb/pages"
+	"goweb/ws"
 )
 
+var port = flag.Int("port", 8080, "the port on which the server is listening.")
+var password = flag.String("password", "empty", "the password of your session.")
+
 func main() {
+  ws.SetPassword(*password)
   app := fiber.New()
   app.Static("/public", "./public/")
 
@@ -19,6 +26,7 @@ func main() {
     pages.Index().Render(context.Background(), c.Response().BodyWriter())
     return c.SendStatus(200)
   })
+  app.Post("/join", handlers.Join)
   
   app.Use(func(c *fiber.Ctx) error {
 		// IsWebSocketUpgrade returns true if the client
@@ -28,9 +36,7 @@ func main() {
 		}
 		return fiber.ErrUpgradeRequired
 	})
+  app.Get("/ws/join/:password", handlers.WSJoin())
 
-  app.Get("/ws/host", session.Host())
-  app.Get("/ws/join/:id<int>", session.Join())
-
-  app.Listen(":3000")
+  app.Listen(fmt.Sprintf(":%d", *port))
 }
