@@ -19,6 +19,7 @@ var password = flag.String("password", "empty", "the password of your session.")
 var quality = flag.Int("quality", 5, "the quality of the video stream.")
 
 func main() {
+  flag.Parse()
   ws.SetPassword(*password)
   ws.SetQuality(*quality)
   app := fiber.New()

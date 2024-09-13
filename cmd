@@ -1,6 +1,6 @@
 #!/bin/bash
 
-commands=(compile run dev build)
+commands=(compile run dev build start)
 
 invalidUsage () {
     echo "Valid Usage: ./cmd <command>"
@@ -22,7 +22,9 @@ elif [ $1 == run ]; then
 elif [ $1 == dev ]; then
   templ generate --watch --cmd "air"
 elif [ $1 == build ]; then
-  go build
+  go build -o build/out
+elif [ $1 == start ]; then
+  ./build/out
 else
   invalidUsage
 fi
