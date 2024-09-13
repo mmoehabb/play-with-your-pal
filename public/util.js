@@ -4,17 +4,19 @@ function switchMode() {
   html.setAttribute("theme", theme !== "dark" ? "dark" : "light")
 }
 
+let img_stream = null
 let conn = null
 let password = ""
 
 function join() {
+  img_stream = document.querySelector("#stream")
   if (window["WebSocket"]) {
       conn = new WebSocket("ws://" + document.location.host + "/ws/join/" + password);
       conn.onclose = function (evt) {
           console.log("session closed.")
       };
       conn.onmessage = function (evt) {
-          console.log("ws message: ", evt.data)
+          img_stream.src = "data:image/jpeg;base64," + evt.data
       };
   } else {
       console.log("Your browser does not support WebSockets.")

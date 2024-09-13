@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
@@ -15,9 +16,11 @@ import (
 
 var port = flag.Int("port", 8080, "the port on which the server is listening.")
 var password = flag.String("password", "empty", "the password of your session.")
+var quality = flag.Int("quality", 5, "the quality of the video stream.")
 
 func main() {
   ws.SetPassword(*password)
+  ws.SetQuality(*quality)
   app := fiber.New()
   app.Static("/public", "./public/")
 
@@ -38,5 +41,6 @@ func main() {
 	})
   app.Get("/ws/join/:password", handlers.WSJoin())
 
-  app.Listen(fmt.Sprintf(":%d", *port))
+  go ws.RunServer()
+  log.Fatal(app.Listen(fmt.Sprintf(":%d", *port)))
 }

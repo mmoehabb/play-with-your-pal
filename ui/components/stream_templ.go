@@ -26,7 +26,7 @@ func Stream() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<iframe class=\"border-2 border-primary\" width=\"600\" height=\"480\"></iframe><script>join()</script>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<img id=\"stream\" class=\"w-full h-full border-2 border-primary object-contain\"><script>join()</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
