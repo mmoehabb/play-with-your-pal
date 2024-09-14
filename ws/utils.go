@@ -6,8 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"image/jpeg"
-	"runtime"
-	"time"
+	"log"
 
 	"github.com/kbinani/screenshot"
 	"github.com/micmonay/keybd_event"
@@ -26,6 +25,7 @@ func CapScreenBase64(q int) string {
   return base64.StdEncoding.EncodeToString(buf.Bytes())
 }
 
+
 var JSKeysMap = map[string]int {
   "a": keybd_event.VK_A,
   "d": keybd_event.VK_D,
@@ -33,28 +33,53 @@ var JSKeysMap = map[string]int {
   "s": keybd_event.VK_S,
 }
 
-func ExecKeyEvent(key string) error {
-  kb, err := keybd_event.NewKeyBonding()
+var kb keybd_event.KeyBonding
+
+func InitKB() {
+  var err error
+  kb, err = keybd_event.NewKeyBonding()
   if err != nil {
-    return err
+    panic(err)
   }
+}
 
-  // For linux, it is very important to wait 2 seconds
-  if runtime.GOOS == "linux" {
-    time.Sleep(2 * time.Second)
+func ExecKey(method string, key string) error {
+  var err error
+  if method == "press" {
+    err = PressKey(key)
+  } else if method == "release" {
+    err = ReleaseKey(key)
+  } else {
+    err = errors.New("Invalid method!")
   }
+  return err 
+}
 
+func PressKey(key string) error {
   if JSKeysMap[key] == 0 {
     return errors.New("key not found!")
   }
-
   // Select keys to be pressed
   kb.SetKeys(JSKeysMap[key]) 
+  err := kb.Press()
+  if err != nil {
+    return err
+  }
+  log.Println(key, " pressed.")
+  return nil
+}
 
-	kb.Press()
-	time.Sleep(10 * time.Millisecond)
-	kb.Release()
-
+func ReleaseKey(key string) error {
+  if JSKeysMap[key] == 0 {
+    return errors.New("key not found!")
+  }
+  // Select keys to be released
+  kb.SetKeys(JSKeysMap[key]) 
+  err := kb.Release()
+  if err != nil {
+    return err
+  }
+  log.Println(key, " released.")
   return nil
 }
 

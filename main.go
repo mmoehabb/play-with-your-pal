@@ -31,6 +31,7 @@ func main() {
     Quality: *quality,
     Noscreen: *noscreen,
   })
+  ws.InitKB()
 
   app := fiber.New()
   app.Static("/public", "./public/")

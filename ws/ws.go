@@ -2,6 +2,7 @@ package ws
 
 import (
 	"log"
+	"strings"
 	"sync"
 
 	"github.com/gofiber/contrib/websocket"
@@ -78,11 +79,13 @@ func HandleConn(c *websocket.Conn) error {
   if err != nil {
     return err
   }
+  cmd := strings.Split(string(msg), "_")
+  method, key := cmd[0], cmd[1]
   go func() {
     if msgType == websocket.TextMessage {
-      err := ExecKeyEvent(string(msg))
+      err := ExecKey(method, key)
       if err != nil {
-        log.Println(string(msg), err)
+        log.Println(err)
       }
     }
   }()

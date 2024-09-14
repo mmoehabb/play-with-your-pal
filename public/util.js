@@ -46,11 +46,22 @@ function normalscreen() {
   img_stream.style.width = ""
 }
 
+const fired_keys = {}
 window.onkeydown = (e) => {
   if (!conn) return;
-  conn.send(e.key);
+  if (!fired_keys[e.key]) {
+    conn.send("press_" + e.key);
+    fired_keys[e.key] = true
+  }
   if (e.key == "Escape") {
     normalscreen()
+  }
+}
+window.onkeyup = (e) => {
+  if (!conn) return;
+  if (fired_keys[e.key] === true) {
+    conn.send("release_" + e.key);
+    fired_keys[e.key] = false
   }
 }
 
