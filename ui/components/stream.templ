@@ -1,6 +1,8 @@
 package components
 
 templ Stream() {
-  <img id="stream" class="w-full h-full border-2 border-primary object-contain"></img>
+  <button class="bg-primary color-text px-4 py-2 m-2 shadow rounded" onclick="fullscreen()">Fullscreen</button>
+  <img id="stream" class="w-full h-full border-primary object-contain"></img>
+  @Keyboard()
   <script>join()</script>
 }

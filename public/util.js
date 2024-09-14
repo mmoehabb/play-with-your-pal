@@ -23,9 +23,35 @@ function join() {
   }
 }
 
+function fullscreen() {
+  const closeBtn = document.createElement("button")
+  closeBtn.id = "closebtn"
+  closeBtn.innerText = "ⓧ"
+  closeBtn.onclick = () => normalscreen()
+  closeBtn.className = "absolute top-4 right-4 color-accent text-2xl"
+
+  document.querySelector("header").style.display = "none"
+  document.querySelector("footer").style.display = "none"
+  img_stream.style.position = "absolute"
+  img_stream.style.width = "100vw"
+
+  document.querySelector("main").append(closeBtn)
+}
+
+function normalscreen() {
+  document.querySelector("#closebtn").style.display = "none"
+  document.querySelector("header").style.display = "flex"
+  document.querySelector("footer").style.display = "flex"
+  img_stream.style.position = ""
+  img_stream.style.width = ""
+}
+
 window.onkeydown = (e) => {
   if (!conn) return;
   conn.send(e.key);
+  if (e.key == "Escape") {
+    normalscreen()
+  }
 }
 
 window.addEventListener("load", (event) => {

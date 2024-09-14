@@ -17,11 +17,21 @@ import (
 var port = flag.Int("port", 8080, "the port on which the server is listening.")
 var password = flag.String("password", "empty", "the password of your session.")
 var quality = flag.Int("quality", 5, "the quality of the video stream.")
+var noscreen = flag.Bool("noscreen", false, "use this flag to disable sharing your screen.")
 
 func main() {
   flag.Parse()
-  ws.SetPassword(*password)
-  ws.SetQuality(*quality)
+  if *quality > 100 {
+    *quality = 100
+  } else if *quality < 1 {
+    *quality = 1
+  }
+  ws.SetConfig(ws.Config{
+    Password: *password,
+    Quality: *quality,
+    Noscreen: *noscreen,
+  })
+
   app := fiber.New()
   app.Static("/public", "./public/")
 

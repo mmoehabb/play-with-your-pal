@@ -2,46 +2,74 @@ package ws
 
 import (
 	"log"
+	"sync"
+
 	"github.com/gofiber/contrib/websocket"
 )
 
-var connections []*websocket.Conn
-var conn_password = ""
-var quality = 15
+type Config struct{
+  Password string
+  Quality int
+  Noscreen bool
+}
+var config Config
+func SetConfig(c Config) {
+  config = c
+}
+func GetPassword() string {
+  return config.Password
+}
+
+type ConnContainer struct {
+  Conn *websocket.Conn
+  Mu sync.Mutex
+}
+
+var session []*ConnContainer
+var session_mu sync.Mutex
 
 func RunServer() {
+  if config.Noscreen == true {
+    return
+  }
   for {
-    for _, conn := range connections {
-      conn.WriteMessage(websocket.TextMessage, []byte(CapScreenBase64(quality)))
+    session_mu.Lock()
+    msg := []byte(CapScreenBase64(config.Quality))
+    for _, container := range session {
+      go sendMsgTo(msg, container)
     }
+    session_mu.Unlock()
   }
 }
 
-func GetPassword() string {
-  return conn_password
-}
-
-func SetPassword(password string) {
-  conn_password = password
-}
-
-func SetQuality(q int) {
-  if q > 100 {
-    quality = 100
-    return
-  } 
-  if q < 1 {
-    quality = 1
-    return
-  }
-  quality = q
+func sendMsgTo(msg []byte, c *ConnContainer) {
+  c.Mu.Lock()
+  c.Conn.WriteMessage(websocket.TextMessage, msg)
+  c.Mu.Unlock()
 }
 
 func AddGuest(c *websocket.Conn, password string) bool {
-  if password != conn_password {
+  if password != config.Password {
     return false
   }
-  connections = append(connections, c)
+
+  session_mu.Lock()
+  session = append(session, &ConnContainer{ Conn: c })
+  session_mu.Unlock()
+
+  c.SetCloseHandler(func(code int, text string) error {
+    session_mu.Lock()
+    var i int
+    for ci, container := range session {
+      if container.Conn == c {
+        i = ci
+        break
+      }
+    }
+    session = append(session[:i], session[i+1:]...)
+    session_mu.Unlock()
+    return nil
+  })
   return true
 }
 

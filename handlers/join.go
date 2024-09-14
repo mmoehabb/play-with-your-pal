@@ -36,6 +36,7 @@ func WSJoin() fiber.Handler {
       log.Println("couldn't join the session!")
       return
     }
+    log.Println("new guest has joined the session!")
     for {
       if err := ws.HandleConn(c); err != nil {
         log.Println("guest leaved: ", err)
