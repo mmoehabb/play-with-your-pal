@@ -16,7 +16,9 @@ function join() {
           console.log("session closed.")
       };
       conn.onmessage = function (evt) {
-          img_stream.src = "data:image/jpeg;base64," + evt.data
+          //img_stream.src = "data:image/jpeg;base64," + evt.data
+          console.log(evt.data)
+          conn.close()
       };
   } else {
       console.log("Your browser does not support WebSockets.")

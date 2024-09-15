@@ -1,9 +1,13 @@
 package ws
 
 import (
+	"goweb/utils/encoder"
+	"goweb/utils/keyboard"
+	"goweb/utils/screen"
 	"log"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gofiber/contrib/websocket"
 )
@@ -35,17 +39,19 @@ func RunServer() {
   }
   for {
     session_mu.Lock()
-    msg := []byte(CapScreenBase64(config.Quality))
+    frames := screen.CaptureSeq(24, uint8(config.Quality))
+    video_buf := encoder.Encode(frames)
     for _, container := range session {
-      go sendMsgTo(msg, container)
+      go sendMsgTo(video_buf, container)
     }
     session_mu.Unlock()
+    time.Sleep(1 * time.Second)
   }
 }
 
 func sendMsgTo(msg []byte, c *ConnContainer) {
   c.Mu.Lock()
-  c.Conn.WriteMessage(websocket.TextMessage, msg)
+  c.Conn.WriteMessage(websocket.BinaryMessage, msg)
   c.Mu.Unlock()
 }
 
@@ -83,7 +89,7 @@ func HandleConn(c *websocket.Conn) error {
   method, key := cmd[0], cmd[1]
   go func() {
     if msgType == websocket.TextMessage {
-      err := ExecKey(method, key)
+      err := keyboard.ExecKey(method, key)
       if err != nil {
         log.Println(err)
       }

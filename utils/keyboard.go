@@ -1,30 +1,11 @@
-package ws
+package keyboard
 
 import (
-	"bufio"
-	"bytes"
-	"encoding/base64"
 	"errors"
-	"image/jpeg"
 	"log"
 
-	"github.com/kbinani/screenshot"
 	"github.com/micmonay/keybd_event"
 )
-
-func CapScreenBase64(q int) string {
-  img, err := screenshot.CaptureDisplay(0)
-  if err != nil {
-    panic(err)
-  }
-
-  var buf bytes.Buffer
-  file := bufio.NewWriter(&buf)
-  jpeg.Encode(file, img, &jpeg.Options{ Quality: q })
-
-  return base64.StdEncoding.EncodeToString(buf.Bytes())
-}
-
 
 var JSKeysMap = map[string]int {
   "a": keybd_event.VK_A,
@@ -57,7 +38,7 @@ func ExecKey(method string, key string) error {
 
 func PressKey(key string) error {
   if JSKeysMap[key] == 0 {
-    return errors.New("key not found!")
+    return errors.New(key + " key not found!")
   }
   // Select keys to be pressed
   kb.SetKeys(JSKeysMap[key]) 
@@ -71,7 +52,7 @@ func PressKey(key string) error {
 
 func ReleaseKey(key string) error {
   if JSKeysMap[key] == 0 {
-    return errors.New("key not found!")
+    return errors.New(key + " key not found!")
   }
   // Select keys to be released
   kb.SetKeys(JSKeysMap[key]) 

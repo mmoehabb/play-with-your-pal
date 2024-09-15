@@ -11,12 +11,13 @@ import (
 
 	"goweb/handlers"
 	"goweb/pages"
+	"goweb/utils/keyboard"
 	"goweb/ws"
 )
 
 var port = flag.Int("port", 8080, "the port on which the server is listening.")
 var password = flag.String("password", "empty", "the password of your session.")
-var quality = flag.Int("quality", 5, "the quality of the video stream.")
+var quality = flag.Int("quality", 15, "the quality of the video stream.")
 var noscreen = flag.Bool("noscreen", false, "use this flag to disable sharing your screen.")
 
 func main() {
@@ -31,7 +32,7 @@ func main() {
     Quality: *quality,
     Noscreen: *noscreen,
   })
-  ws.InitKB()
+  keyboard.InitKB()
 
   app := fiber.New()
   app.Static("/public", "./public/")
