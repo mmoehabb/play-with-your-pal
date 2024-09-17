@@ -2,6 +2,8 @@
 package encoder
 
 import (
+	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 
@@ -10,7 +12,7 @@ import (
 
 func checkErr(err error) {
   if err != nil {
-    panic(err)
+    fmt.Fprintln(os.Stderr, err)
   }
 }
 
@@ -18,6 +20,8 @@ func Encode(frames []screen.Frame) []byte {
   cmd := exec.Command("ffmpeg",
     "-framerate", strconv.Itoa(len(frames)),
     "-y", "-i", "pipe:",
+    "-preset", "veryfast",
+    "-s", "1280x720",
     "./stream.mp4",
   )
   
@@ -30,8 +34,11 @@ func Encode(frames []screen.Frame) []byte {
     }
   }()
 
-  out, err := cmd.CombinedOutput()
+  _, err = cmd.CombinedOutput()
   checkErr(err)
-  return out
+
+  buf, err := os.ReadFile("./stream.mp4")
+  checkErr(err)
+  return buf
 }
 

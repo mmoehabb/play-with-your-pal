@@ -17,6 +17,7 @@ templ Index() {
 
       <link href="public/globals.css" rel="stylesheet" />
       <script src="public/tailwind.js"></script>
+      <script src="public/stream.js"></script>
       <script src="public/util.js"></script>
       <script src="https://unpkg.com/htmx.org@2.0.2"></script>
     }
@@ -24,7 +25,7 @@ templ Index() {
       
       @layouts.Header()
 
-      <main class="relative flex-1 flex flex-wrap justify-center items-center p-8 lg:px-24 bg-background color-text">
+      <main class="relative flex-1 flex flex-col justify-center items-center p-8 lg:px-24 color-text">
         <form class="flex flex-col items-center" hx-post="/join" hx-swap="outerHTML">
           <input class="input w-full" name="password" placeholder="Type the password..." type="password">
           <button class="m-2 w-full px-4 py-2 bg-primary hover:bg-[var(--color-accent)] color-text shadow rounded" type="submit">Join</button>

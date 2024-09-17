@@ -4,7 +4,6 @@ import (
 	"goweb/utils/encoder"
 	"goweb/utils/keyboard"
 	"goweb/utils/screen"
-	"log"
 	"strings"
 	"sync"
 	"time"
@@ -33,19 +32,46 @@ type ConnContainer struct {
 var session []*ConnContainer
 var session_mu sync.Mutex
 
+var framesChannel = make(chan screen.Frame, 24)
+var videoBufChannel = make(chan []byte)
+
 func RunServer() {
   if config.Noscreen == true {
     return
   }
+  go screenLoop()
+  go videoBufLoop()
   for {
     session_mu.Lock()
-    frames := screen.CaptureSeq(24, uint8(config.Quality))
-    video_buf := encoder.Encode(frames)
+    buf := <- videoBufChannel
     for _, container := range session {
-      go sendMsgTo(video_buf, container)
+      go sendMsgTo(buf, container)
     }
     session_mu.Unlock()
-    time.Sleep(1 * time.Second)
+  }
+}
+
+func screenLoop() {
+  for {
+    frame, err := screen.Capture(uint8(config.Quality))
+    if err != nil {
+      panic(err)
+    }
+    framesChannel <- frame
+  }
+}
+
+var collectedFrames []screen.Frame
+func videoBufLoop() {
+  t := time.Now()
+  for {
+    collectedFrames = append(collectedFrames, <-framesChannel)
+    if time.Since(t) < 20 * time.Millisecond {
+      continue
+    }
+    videoBufChannel <- encoder.Encode(collectedFrames)
+    collectedFrames = []screen.Frame{}
+    t = time.Now()
   }
 }
 
@@ -89,10 +115,7 @@ func HandleConn(c *websocket.Conn) error {
   method, key := cmd[0], cmd[1]
   go func() {
     if msgType == websocket.TextMessage {
-      err := keyboard.ExecKey(method, key)
-      if err != nil {
-        log.Println(err)
-      }
+      keyboard.ExecKey(method, key)
     }
   }()
   return nil

@@ -4,21 +4,38 @@ function switchMode() {
   html.setAttribute("theme", theme !== "dark" ? "dark" : "light")
 }
 
-let img_stream = null
 let conn = null
 let password = ""
 
+// preserve URL.createObjectURL result to be revoked and swaped on each ws message.
+let burl = null
+
+let video_stream = null
+let canvas_stream = null
+let ctx = null
+
+function drawVideo() {
+  ctx.drawImage(video_stream, 0, 0, canvas_stream.width, canvas_stream.height)
+  requestAnimationFrame(drawVideo)
+}
+
 function join() {
-  img_stream = document.querySelector("#stream")
+  video_stream = document.getElementById("video_stream")
+  canvas_stream = document.getElementById("canvas_stream")
+  canvas_stream.width = window.innerWidth - 100
+  canvas_stream.height = canvas_stream.width * 720 / 1280
+  ctx = canvas_stream.getContext("2d")
+  requestAnimationFrame(drawVideo)
   if (window["WebSocket"]) {
       conn = new WebSocket("ws://" + document.location.host + "/ws/join/" + password);
       conn.onclose = function (evt) {
           console.log("session closed.")
       };
       conn.onmessage = function (evt) {
-          //img_stream.src = "data:image/jpeg;base64," + evt.data
-          console.log(evt.data)
-          conn.close()
+        const b = new Blob([evt.data], { type: "video/mp4" })
+        URL.revokeObjectURL(burl)
+        burl = URL.createObjectURL(b)
+        video_stream.src = burl
       };
   } else {
       console.log("Your browser does not support WebSockets.")
@@ -34,18 +51,18 @@ function fullscreen() {
 
   document.querySelector("header").style.display = "none"
   document.querySelector("footer").style.display = "none"
-  img_stream.style.position = "absolute"
-  img_stream.style.width = "100vw"
+  canvas_stream.style.position = "absolute"
+  canvas_stream.width = window.innerWidth
 
   document.querySelector("main").append(closeBtn)
 }
 
 function normalscreen() {
-  document.querySelector("#closebtn").style.display = "none"
+  document.querySelector("#closebtn").remove()
   document.querySelector("header").style.display = "flex"
   document.querySelector("footer").style.display = "flex"
-  img_stream.style.position = ""
-  img_stream.style.width = ""
+  canvas_stream.style.position = ""
+  canvas_stream.width = window.innerWidth - 100
 }
 
 const fired_keys = {}
