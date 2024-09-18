@@ -28,14 +28,11 @@ function join() {
   requestAnimationFrame(drawVideo)
   if (window["WebSocket"]) {
       conn = new WebSocket("ws://" + document.location.host + "/ws/join/" + password);
-      conn.onclose = function (evt) {
+      conn.onclose = function () {
           console.log("session closed.")
       };
       conn.onmessage = function (evt) {
-        const b = new Blob([evt.data], { type: "video/mp4" })
-        URL.revokeObjectURL(burl)
-        burl = URL.createObjectURL(b)
-        video_stream.src = burl
+        console.log(evt.data)
       };
   } else {
       console.log("Your browser does not support WebSockets.")

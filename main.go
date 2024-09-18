@@ -11,7 +11,6 @@ import (
 
 	"goweb/handlers"
 	"goweb/pages"
-	"goweb/utils/encoder"
 	"goweb/utils/keyboard"
 	"goweb/ws"
 )
@@ -34,7 +33,6 @@ func main() {
     Noscreen: *noscreen,
   })
   keyboard.InitKB()
-  encoder.Init()
 
   app := fiber.New()
   app.Static("/public", "./public/")

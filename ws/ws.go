@@ -6,7 +6,6 @@ import (
 	"goweb/utils/screen"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/gofiber/contrib/websocket"
 )
@@ -32,18 +31,17 @@ type ConnContainer struct {
 var session []*ConnContainer
 var session_mu sync.Mutex
 
-var framesChannel = make(chan screen.Frame, 24)
-var videoBufChannel = make(chan []byte)
-
 func RunServer() {
   if config.Noscreen == true {
     return
   }
-  go screenLoop()
-  go videoBufLoop()
   for {
     session_mu.Lock()
-    buf := <- videoBufChannel
+    img, err := screen.Capture(config.Quality)
+    if err != nil {
+      panic(err)
+    }
+    buf := encoder.Encode(img)
     for _, container := range session {
       go sendMsgTo(buf, container)
     }
@@ -51,33 +49,9 @@ func RunServer() {
   }
 }
 
-func screenLoop() {
-  for {
-    frame, err := screen.Capture(uint8(config.Quality))
-    if err != nil {
-      panic(err)
-    }
-    framesChannel <- frame
-  }
-}
-
-var collectedFrames []screen.Frame
-func videoBufLoop() {
-  t := time.Now()
-  for {
-    collectedFrames = append(collectedFrames, <-framesChannel)
-    if time.Since(t) < 20 * time.Millisecond {
-      continue
-    }
-    videoBufChannel <- encoder.Encode(collectedFrames)
-    collectedFrames = []screen.Frame{}
-    t = time.Now()
-  }
-}
-
-func sendMsgTo(msg []byte, c *ConnContainer) {
+func sendMsgTo(msg string, c *ConnContainer) {
   c.Mu.Lock()
-  c.Conn.WriteMessage(websocket.BinaryMessage, msg)
+  c.Conn.WriteMessage(websocket.TextMessage, []byte(msg))
   c.Mu.Unlock()
 }
 
