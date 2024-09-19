@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"fmt"
 	"goweb/utils/encoder"
 	"goweb/utils/keyboard"
 	"goweb/utils/screen"
@@ -31,17 +32,25 @@ type ConnContainer struct {
 var session []*ConnContainer
 var session_mu sync.Mutex
 
+var screen_width, screen_height int
+
 func RunServer() {
   if config.Noscreen == true {
     return
   }
+  img, err := screen.Capture(config.Quality)
+  if err != nil {
+    panic(err)
+  }
+  screen_width = img.Bounds().Max.X
+  screen_height = img.Bounds().Max.Y
   for {
     session_mu.Lock()
-    img, err := screen.Capture(config.Quality)
-    if err != nil {
-      panic(err)
+    img, _ := screen.Capture(config.Quality)
+    var buf string
+    if len(session) > 0 {
+      buf = encoder.Encode(img)
     }
-    buf := encoder.Encode(img)
     for _, container := range session {
       go sendMsgTo(buf, container)
     }
@@ -62,6 +71,8 @@ func AddGuest(c *websocket.Conn, password string) bool {
 
   session_mu.Lock()
   session = append(session, &ConnContainer{ Conn: c })
+  // send screen dimentions as first message
+  c.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%d,%d", screen_width, screen_height)))
   session_mu.Unlock()
 
   c.SetCloseHandler(func(code int, text string) error {

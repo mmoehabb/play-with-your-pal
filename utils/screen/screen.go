@@ -2,7 +2,9 @@ package screen
 
 import (
 	"image"
+
 	"github.com/kbinani/screenshot"
+	"github.com/nfnt/resize"
 )
 
 func Capture(quality int) (*image.RGBA, error) {
@@ -10,6 +12,8 @@ func Capture(quality int) (*image.RGBA, error) {
   if err != nil {
     return nil, err
   }
-  return img, nil
+  width, height := uint(1280 * quality / 100), uint(720 * quality / 100)
+  newimg := resize.Resize(width, height, img, resize.Lanczos2)
+  return newimg.(*image.RGBA), nil
 }
 
