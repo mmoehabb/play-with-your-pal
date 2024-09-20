@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
@@ -19,9 +20,14 @@ var port = flag.Int("port", 8080, "the port on which the server is listening.")
 var password = flag.String("password", "empty", "the password of your session.")
 var quality = flag.Int("quality", 75, "the quality of the video stream.")
 var noscreen = flag.Bool("noscreen", false, "use this flag to disable sharing your screen.")
+var dv = flag.Bool("v", false, "print the version of the app.") // dv: display_version
 
 func main() {
   flag.Parse()
+  if *dv == true {
+    fmt.Println("v0.0.2")
+    os.Exit(0)
+  }
   if *quality > 100 {
     *quality = 100
   } else if *quality < 1 {
