@@ -29,6 +29,7 @@ func Encode(img *image.RGBA) string {
   var pixels = img.Pix
   var pln = len(pixels)
   threshold = pln / nu_chunks
+  threshold -= threshold % 4
   for cn := 0; cn < int(nu_chunks); cn++ {
     go encodeChunk(cn, pixels[cn*threshold:(cn+1)*threshold])
   }
