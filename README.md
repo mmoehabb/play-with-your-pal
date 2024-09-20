@@ -29,4 +29,5 @@ Usage of ./pwyp:
         the quality of the video stream. (default 75)
 ```
 
-> It's recommended to use -noscreen flag and use the app to share only keyboard commands; as streaming implementation might be not suitable.
+> It's recommended to use -noscreen flag and use the app to share only keyboard commands; as streaming implementation might not be quite suitable.
+> If you used screen sharing and it seemed to be buggy on phones or old poor hardwares, you may want to reduce the quality with -quality flag: try `-quality 25`.
