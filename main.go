@@ -25,7 +25,7 @@ var dv = flag.Bool("v", false, "print the version of the app.") // dv: display_v
 func main() {
   flag.Parse()
   if *dv == true {
-    fmt.Println("v0.0.2")
+    fmt.Println("v1.0.0")
     os.Exit(0)
   }
   if *quality > 100 {
